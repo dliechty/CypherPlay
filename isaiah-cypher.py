@@ -5,35 +5,32 @@ import logging
 
 argParser = argparse.ArgumentParser()
 
-argParser.add_argument('-i', '--input', help='Input string to cypher')
+argParser.add_argument('-e', '--encrypt', help='String to cypher')
+argParser.add_argument('-d', '--decrypt', help='String to decypher')
 
 logLevel = logging.DEBUG
 FORMAT = '%(asctime)-15s %(levelname)s %(message)s'
 
-dailyShift = [3, 1, 18]
+dailyShift = [23, 8, 2]
 
-letterToNum = {"a": 1, "b": 2, "c": 3, "d": 4, "e": 5, "f": 6, "g": 7,
-               "h": 8, "i": 9, "j": 10, "k": 11, "l": 12, "m": 13, "n": 14,
-               "o": 15, "p": 16, "q": 17, "r": 18, "s": 19, "t": 20, "u": 21,
-               "v": 22, "w": 23, "x": 24, "y": 25, "z": 26, ".": 27, " ": 28}
+letterToNum = {"a": 0, "b": 1, "c": 2, "d": 3, "e": 4, "f": 5, "g": 6,
+               "h": 7, "i": 8, "j": 9, "k": 10, "l": 11, "m": 12, "n": 13,
+               "o": 14, "p": 15, "q": 16, "r": 17, "s": 18, "t": 19, "u": 20,
+               "v": 21, "w": 22, "x": 23, "y": 24, "z": 25, ".": 26, " ": 27}
 
-numToLetter = {"a": 14, "b": 17, "c": 3, "d": 7, "e": 9, "f": 11, "g": 16,
-               "h": 8, "i": 25, "j": 23, "k": 19, "l": 15, "m": 18, "n": 1,
-               "o": 2, "p": 5, "q": 10, "r": 12, "s": 20, "t": 22, "u": 6,
-               "v": 4, "w": 24, "x": 13, "y": 26, "z": 21, ".": 27, " ": 28}
+numToLetter = {"a": 13, "b": 16, "c": 2, "d": 6, "e": 8, "f": 10, "g": 15,
+               "h": 7, "i": 24, "j": 22, "k": 18, "l": 14, "m": 17, "n": 0,
+               "o": 1, "p": 4, "q": 9, "r": 11, "s": 19, "t": 21, "u": 5,
+               "v": 3, "w": 23, "x": 12, "y": 25, "z": 20, ".": 26, " ": 27}
 
-layer1 = [3, 17, 11, 25, 4, 7, 6, 12, 8, 9, 19, 24, 14, 18, 26, 10, 2, 5, 1,
-          23, 13, 21, 15, 16, 28, 27, 20, 22, 3, 17, 11, 25, 4, 7, 6, 12, 8,
-          9, 19, 24, 14, 18, 26, 10, 2, 5, 1, 23, 13, 21, 15, 16, 28, 27, 20,
-          22]
+layer1 = [2, 16, 10, 24, 3, 6, 5, 11, 7, 8, 18, 23, 13, 17, 25, 9, 1, 4, 0,
+          22, 12, 20, 14, 15, 27, 26, 19, 21]
 
-layer2 = [18, 7, 21, 17, 14, 9, 26, 20, 10, 1, 5, 23, 2, 19, 25, 13, 24, 28,
-          4, 16, 6, 27, 12, 15, 22, 3, 11, 8, 18, 7, 21, 17, 14, 9, 26, 20, 10,
-          1, 5, 23, 2, 19, 25, 13, 24, 28, 4, 16, 6, 27, 12, 15, 22, 3, 11, 8]
+layer2 = [17, 6, 20, 16, 13, 8, 25, 19, 9, 0, 4, 22, 1, 18, 24, 12, 23, 27,
+          3, 15, 5, 26, 11, 14, 21, 2, 10, 7]
 
-layer3 = [11, 21, 6, 9, 1, 7, 24, 13, 10, 5, 27, 19, 28, 3, 22, 8, 12, 25, 17,
-          20, 16, 23, 4, 15, 26, 14, 2, 18, 11, 21, 6, 9, 1, 7, 24, 13, 10, 5,
-          27, 19, 28, 3, 22, 8, 12, 25, 17, 20, 16, 23, 4, 15, 26, 14, 2, 18]
+layer3 = [10, 20, 5, 8, 0, 6, 23, 12, 9, 4, 26, 18, 27, 2, 21, 7, 11, 24, 16,
+          19, 15, 22, 3, 14, 25, 13, 1, 17]
 
 
 def main():
@@ -44,27 +41,76 @@ def main():
 
     logging.debug('All command line arguments: [%s]', args)
 
-    cypherText(args.input)
+    cypher(args.encrypt)
 
 
-def cypherText(inputText):
+def cypher(text):
 
-    logging.debug("Cyphering input text: [%s]", inputText)
+    logging.debug("Cyphering input text: [%s]", text)
 
-    output = ''.join(executeCypher(letter) for letter in inputText)
+    output = ''
+    previousLetter = ''
+
+    for letter in text:
+        previousLetter = encrypt(letter, previousLetter)
+        output = output + previousLetter
 
     print(output)
 
 
-def executeCypher(letter):
+def uncypher(text):
 
-    logging.debug('Cyphering input letter: [%s]', letter)
+    logging.debug("Cyphering input text: [%s]", text)
 
-    result = layer1[layer1.index(letterToNum[letter]) + dailyShift[0]]
+    output = ''.join(decrypt(letter) for letter in text)
 
-    result = layer2[layer2.index(result) + dailyShift[1]]
+    print(output)
 
-    result = layer3[layer3.index(result) + dailyShift[2]]
+
+def encrypt(letter, previousLetter):
+
+    logging.debug('Encrypting input letter: [%s]', letter)
+
+    i = (layer1.index(letterToNum[letter]) + dailyShift[0]) % len(layer1)
+
+    result = layer1[i]
+
+    i = (layer2.index(result) + dailyShift[1]) % len(layer2)
+
+    result = layer2[i]
+
+    i = (layer3.index(result) + dailyShift[2]) % len(layer3)
+
+    result = layer3[i]
+
+    inverseNumToLetter = {v: k for k, v in numToLetter.items()}
+
+    if previousLetter:
+        result = (result + numToLetter[previousLetter]) % len(layer1)
+
+    result = inverseNumToLetter[result]
+
+    logging.debug('Result of cyphering input letter: [%s] = [%s]',
+                  letter, result)
+
+    return result
+
+
+def decrypt(letter):
+
+    logging.debug('Decrypting input letter: [%s]', letter)
+
+    i = layer1.index(letterToNum[letter]) + dailyShift[0] % len(layer1)
+
+    result = layer1[i]
+
+    i = layer2.index(result) + dailyShift[1] % len(layer2)
+
+    result = layer2[i]
+
+    i = layer3.index(result) + dailyShift[2] % len(layer3)
+
+    result = layer3[i]
 
     inverseNumToLetter = {v: k for k, v in numToLetter.items()}
 
