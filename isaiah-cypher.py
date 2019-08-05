@@ -66,11 +66,12 @@ def executeCypher(letter):
 
     result = layer3[layer3.index(result) + dailyShift[2]]
 
-    inverseNumToLetter = {v:k for k, v in numToLetter.items()}
+    inverseNumToLetter = {v: k for k, v in numToLetter.items()}
 
     result = inverseNumToLetter[result]
 
-    logging.debug('Result of cyphering input letter: [%s] = [%s]', letter, result)
+    logging.debug('Result of cyphering input letter: [%s] = [%s]',
+                  letter, result)
 
     return result
 
